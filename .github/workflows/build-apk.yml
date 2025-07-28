@@ -14,8 +14,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -23,13 +24,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
+          cache: gradle
 
-      - name: Decode Keystore
+      - name: Decode Android Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > $KEYSTORE_PATH
+        shell: bash
 
-      - name: Grant execute permission
+      - name: Grant execute permission to Gradle wrapper
         run: chmod +x android/gradlew
 
       - name: Build Release APK
@@ -41,8 +43,8 @@ jobs:
             -Pandroid.injected.signing.key.alias=$ALIAS \
             -Pandroid.injected.signing.key.password=$KEY_PASS
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      - name: Upload Release APK artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: faceapp-release.apk
+          name: faceapp-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
