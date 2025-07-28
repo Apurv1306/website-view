@@ -26,13 +26,23 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Ensure gradle wrapper exists
+        working-directory: android
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "Gradle wrapper not found. Generating it now..."
+            gradle wrapper
+          else
+            echo "Gradle wrapper already exists."
+          fi
+
+      - name: Grant execute permission to Gradle wrapper
+        run: chmod +x android/gradlew
+
       - name: Decode Android Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > $KEYSTORE_PATH
         shell: bash
-
-      - name: Grant execute permission to Gradle wrapper
-        run: chmod +x android/gradlew
 
       - name: Build Release APK
         working-directory: android
@@ -48,4 +58,3 @@ jobs:
         with:
           name: faceapp-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
- 
